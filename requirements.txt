@@ -1,0 +1,2 @@
+kivy>=1.11.0
+git+https://github.com/JonasT/p4a-build-spaces.git

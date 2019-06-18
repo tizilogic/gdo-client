@@ -1,5 +1,4 @@
-MIT License
-
+"""
 Copyright (c) 2019 Tiziano Bettio
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,3 +18,40 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+"""
+
+from distutils.core import setup
+from setuptools import find_packages
+
+__author__ = 'Tiziano Bettio'
+__copyright__ = 'Copyright (C) 2019 Tiziano Bettio'
+__license__ = 'MIT'
+__version__ = '0.10'
+
+
+options = {
+    'apk': {
+        'debug': None,
+        'requirements': 'sdl2,kivy,python3',
+        'package': 'com.tizilogic.gdo',
+        'android-api': 28,
+        # 'arch': 'arm64-v8a',  # switch for builds
+        'dist-name': 'gdo',
+        'icon': 'assets/icon.png',
+        'presplash': 'assets/splash.png',
+        'presplash-color': '#014212',
+        'permissions': ['INTERNET'],
+        # 'release': None,  # switch for release
+    }
+}
+
+setup(
+    name='Garage Door Opener',
+    version='0.10',
+    description='Simple client for gdo-server',
+    author='tcdude',
+    author_email='tizilogic@gmail.com',
+    packages=find_packages(),
+    options=options,
+    package_data={'src': ['*.py']},
+)
