@@ -61,7 +61,7 @@ Builder.load_string('''
         size_hint: 1.0, 0.85
         text: 'Open Sesame!'
         font_size: '32sp'
-        on_release: app.open_door()
+        on_release: app.call_open_door()
         background_normal: ''
         background_color: [0.15, 0.45, 0.1, 1]
     Button:
@@ -81,8 +81,13 @@ class Interface(BoxLayout):
 
 class GDOClient(App):
     status_text = StringProperty()
+    keep_open_event = None
 
-    def open_door(self):
+    def call_open_door(self):
+        Clock.schedule_once(self.open_door, 0)
+
+    # noinspection PyUnusedLocal
+    def open_door(self, dt):
         self.status_text = 'State: trying to open...'
         https = int(self.config.get('Connection', 'https'))
         protocol = 'https' if https else 'http'
@@ -138,16 +143,18 @@ class GDOClient(App):
 
     # noinspection PyUnusedLocal
     def keep_open_thread(self, dt):
-        if self.keep_open:
-            self.open_door()
-        Clock.schedule_once(self.keep_open_thread, self.ival)
+        if self.keep_open or (dt < self.ival
+                              and int(self.config.get('App Settings', 'auto'))):
+            self.call_open_door()
+        self.keep_open_event = Clock.schedule_once(
+            self.keep_open_thread,
+            self.ival
+        )
 
     def build(self):
         self.settings_cls = SettingsWithTabbedPanel
         self.use_kivy_settings = False
-        if int(self.config.get('App Settings', 'auto')):
-            self.open_door()
-        Clock.schedule_once(self.keep_open_thread, self.ival)
+        self.keep_open_event = Clock.schedule_once(self.keep_open_thread, 0)
         Window.bind(on_keyboard=self.key_input)
         self.status_text = 'State: unknown'
         return Interface()
@@ -176,8 +183,8 @@ class GDOClient(App):
     # noinspection PyMethodMayBeStatic,PyUnusedLocal
     def key_input(self, window, key, scancode, codepoint, modifier):
         if key in (27, 4):
-            print('Back button pressed. Closing...')
-            App.get_running_app().stop()
+            self.keep_open_event.cancel()
+            self.stop()
             return True
         else:
             return False
